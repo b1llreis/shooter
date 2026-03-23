@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "eval clang++ main.cpp $(pkg-config --libs --cflags raylib) -framework IOKit -framework Cocoa -framework OpenGL -std=c++17 -Wall -g -o game",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": ["$gcc"]
+		}
+	]
+}
