@@ -1,0 +1,3 @@
+/Users/r.a.korostelev/GolandProjects/shooter/build/CMakeFiles/game.dir
+/Users/r.a.korostelev/GolandProjects/shooter/build/CMakeFiles/edit_cache.dir
+/Users/r.a.korostelev/GolandProjects/shooter/build/CMakeFiles/rebuild_cache.dir

@@ -4,11 +4,27 @@
 		{
 			"label": "build",
 			"type": "shell",
-			"command": "eval clang++ main.cpp $(pkg-config --libs --cflags raylib) -framework IOKit -framework Cocoa -framework OpenGL -std=c++17 -Wall -g -o game",
+			"command": "cmake --build build",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "build and run",
+			"type": "shell",
+			"command": "cmake --build build && ./build/game",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "clean rebuild",
+			"type": "shell",
+			"command": "rm -rf build && mkdir build && cd build && cmake .. && make && ./game",
 			"problemMatcher": ["$gcc"]
 		}
 	]
