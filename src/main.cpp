@@ -1,83 +1,147 @@
-
-
-/*******************************************************************************************
-*
-*   raylib [core] example - input mouse
-*
-*   Example complexity rating: [★☆☆☆] 1/4
-*
-*   Example originally created with raylib 1.0, last time updated with raylib 5.5
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2014-2025 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "raylib.h"
-#include "format"
-#include "string"
-
+#include "raymath.h"
+#include "camera.h"
+#include <format>
+#include <string>
+#include <iostream>
 
 //------------------------------------------------------------------------------------
-// Program main entry point
+// Program main entry point - FPS Camera Test
 //------------------------------------------------------------------------------------
 int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 1280;
+    const int screenHeight = 720;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - input mouse");
+    InitWindow(screenWidth, screenHeight, "FPS Camera Test");
 
-    Vector2 ballPosition = { -100.0f, -100.0f };
-    Color ballColor = DARKBLUE;
-    Vector2 lastAppliedPos = ballPosition;
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //---------------------------------------------------------------------------------------
+    // Create FPS camera - position, front direction, up normal, sensitivity, yaw, pitch, fovy
+    FPSCamera fpsCamera(Vector3{ 0.0f, 2.0f, 5.0f });
+    // Hide cursor and enable raw mouse input for FPS controls
+    DisableCursor();
+
+    SetTargetFPS(60);
+    //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose())
     {
         // Update
         //----------------------------------------------------------------------------------
+        
+        // Get mouse delta for camera rotation
+        // Vector2 mouseDelta = GetMouseDelta();
+        // std::cout << "mouseDelta.x " << mouseDelta.x << " mouseDelta.y " << mouseDelta.y << std::endl;
+        // std::cout << "fpsCamera.getDirection().x " << fpsCamera.getDirection().x << " fpsCamera.getDirection().y " << fpsCamera.getDirection().y << " fpsCamera.getDirection().z " << fpsCamera.getDirection().z << std::endl;
+        fpsCamera.update();
+
+        // Camera movement with WASD
+        Camera3D cam = fpsCamera.getCamera();
+        Vector3 position = cam.position;
+        Vector3 front = Vector3Normalize(Vector3Subtract(cam.target, position));
+        Vector3 right = Vector3Normalize(Vector3CrossProduct(front, cam.up));
+        
+        float moveSpeed = 0.1f;
+        
+        if (IsKeyDown(KEY_W))
+        {
+            position = Vector3Add(position, Vector3Scale(front, moveSpeed));
+        }
+        if (IsKeyDown(KEY_S))
+        {
+            position = Vector3Subtract(position, Vector3Scale(front, moveSpeed));
+        }
+        if (IsKeyDown(KEY_A))
+        {
+            position = Vector3Subtract(position, Vector3Scale(right, moveSpeed));
+        }
+        if (IsKeyDown(KEY_D))
+        {
+            position = Vector3Add(position, Vector3Scale(right, moveSpeed));
+        }
+        if (IsKeyDown(KEY_SPACE))
+        {
+            position.y += moveSpeed;
+        }
+        if (IsKeyDown(KEY_LEFT_CONTROL))
+        {
+            position.y -= moveSpeed;
+        }
+
+        fpsCamera.setPosition(position);
+
+        // Toggle cursor with H key
         if (IsKeyPressed(KEY_H))
         {
             if (IsCursorHidden()) ShowCursor();
-            else HideCursor();
+            else DisableCursor();
         }
-
-        ballPosition = GetMousePosition();
-
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ballColor = MAROON;
-        else if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) ballColor = LIME;
-        else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) ballColor = DARKBLUE;
-        else if (IsMouseButtonPressed(MOUSE_BUTTON_SIDE)) ballColor = PURPLE;
-        else if (IsMouseButtonPressed(MOUSE_BUTTON_EXTRA)) ballColor = YELLOW;
-        else if (IsMouseButtonPressed(MOUSE_BUTTON_FORWARD)) ballColor = ORANGE;
-        else if (IsMouseButtonPressed(MOUSE_BUTTON_BACK)) ballColor = BEIGE;
         //----------------------------------------------------------------------------------
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            
             ClearBackground(RAYWHITE);
-            if (ballPosition.x >= 0.0f && ballPosition.x <= screenWidth && ballPosition.y >= 0.0f && ballPosition.y <= screenHeight){
-                lastAppliedPos = ballPosition;
+
+            Camera3D camera = fpsCamera.getCamera();
+            BeginMode3D(camera);
+
+                // Draw grid
+                DrawGrid(20, 1.0f);
+
+                // Draw some cubes for reference
+                DrawCube(Vector3{ -5.0f, 1.0f, -5.0f }, 2.0f, 2.0f, 2.0f, RED);
+                DrawCube(Vector3{ 5.0f, 1.0f, -5.0f }, 2.0f, 2.0f, 2.0f, GREEN);
+                DrawCube(Vector3{ -5.0f, 1.0f, 5.0f }, 2.0f, 2.0f, 2.0f, BLUE);
+                DrawCube(Vector3{ 5.0f, 1.0f, 5.0f }, 2.0f, 2.0f, 2.0f, YELLOW);
+                
+                // Draw a central sphere
+                DrawSphere(Vector3{ 0.0f, 1.0f, 0.0f }, 1.0f, ORANGE);
+
+                // Draw some pillars
+                for (int i = -10; i <= 10; i += 5)
+                {
+                    for (int j = -10; j <= 10; j += 5)
+                    {
+                        if (i == 0 && j == 0) continue;
+                        DrawCylinder(Vector3{ (float)i, 0.0f, (float)j }, 0.3f, 0.3f, 3.0f, 8, GRAY);
+                    }
+                }
+
+            EndMode3D();
+
+            // Draw UI overlay
+            DrawText("FPS CAMERA TEST", 10, 10, 20, DARKBLUE);
+            DrawText("----------------", 10, 30, 20, DARKBLUE);
+            DrawText("WASD - Move forward/backward/strafe", 10, 60, 16, DARKGRAY);
+            DrawText("SPACE - Move up", 10, 80, 16, DARKGRAY);
+            DrawText("LEFT_CTRL - Move down", 10, 100, 16, DARKGRAY);
+            DrawText("MOUSE - Look around", 10, 120, 16, DARKGRAY);
+            DrawText("H - Toggle cursor", 10, 140, 16, DARKGRAY);
+            DrawText("----------------", 10, 160, 20, DARKBLUE);
+
+            // Display current camera position
+            std::string posText = std::format("Position: [{:.2f}, {:.2f}, {:.2f}]", 
+                position.x, position.y, position.z);
+            DrawText(posText.c_str(), 10, 200, 18, DARKGREEN);
+
+            // Display FPS
+            int fps = GetFPS();
+            std::string fpsText = std::format("FPS: {}", fps);
+            DrawText(fpsText.c_str(), screenWidth - 100, 20, 24, 
+                fps >= 55 ? GREEN : (fps >= 30 ? YELLOW : RED));
+
+            if (IsCursorHidden())
+            {
+                DrawText("CURSOR HIDDEN (FPS Mode)", screenWidth - 250, 50, 16, RED);
             }
-            DrawCircleV(lastAppliedPos, 40, ballColor);
-
-            std::string mouseText = std::format("current mouse position: [ {:.0f}, {:.0f} ]", ballPosition.x, ballPosition.y);
-            DrawText(mouseText.c_str(), 20, screenHeight - 30, 20, DARKGRAY);
-            DrawText("move ball with mouse and click mouse button to change color", 10, 10, 20, DARKGRAY);
-            DrawText("Press 'H' to toggle cursor visibility", 10, 30, 20, DARKGRAY);
-
-            if (IsCursorHidden()) DrawText("CURSOR HIDDEN", 20, 60, 20, RED);
-            else DrawText("CURSOR VISIBLE", 20, 60, 20, LIME);
+            else
+            {
+                DrawText("CURSOR VISIBLE", screenWidth - 200, 50, 16, LIME);
+            }
 
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -85,7 +149,8 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
+    EnableCursor();
+    CloseWindow();
     //--------------------------------------------------------------------------------------
 
     return 0;

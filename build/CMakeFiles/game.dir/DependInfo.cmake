@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/Users/r.a.korostelev/GolandProjects/shooter/src/camera.cpp" "CMakeFiles/game.dir/src/camera.cpp.o" "gcc" "CMakeFiles/game.dir/src/camera.cpp.o.d"
   "/Users/r.a.korostelev/GolandProjects/shooter/src/main.cpp" "CMakeFiles/game.dir/src/main.cpp.o" "gcc" "CMakeFiles/game.dir/src/main.cpp.o.d"
   )
 
