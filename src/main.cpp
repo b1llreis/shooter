@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "camera.h"
+#include "player.h"
 #include <format>
 #include <string>
 #include <iostream>
@@ -18,7 +19,7 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "FPS Camera Test");
 
     // Create FPS camera - position, front direction, up normal, sensitivity, yaw, pitch, fovy
-    FPSCamera fpsCamera(Vector3{ 0.0f, 2.0f, 5.0f });
+    Player player(Vector3{ 0.0f, 2.0f, 5.0f });
     // Hide cursor and enable raw mouse input for FPS controls
     DisableCursor();
 
@@ -35,43 +36,8 @@ int main(void)
         // Vector2 mouseDelta = GetMouseDelta();
         // std::cout << "mouseDelta.x " << mouseDelta.x << " mouseDelta.y " << mouseDelta.y << std::endl;
         // std::cout << "fpsCamera.getDirection().x " << fpsCamera.getDirection().x << " fpsCamera.getDirection().y " << fpsCamera.getDirection().y << " fpsCamera.getDirection().z " << fpsCamera.getDirection().z << std::endl;
-        fpsCamera.update();
-
-        // Camera movement with WASD
-        Camera3D cam = fpsCamera.getCamera();
-        Vector3 position = cam.position;
-        Vector3 front = Vector3Normalize(Vector3Subtract(cam.target, position));
-        Vector3 right = Vector3Normalize(Vector3CrossProduct(front, cam.up));
         
-        float moveSpeed = 0.1f;
-        
-        if (IsKeyDown(KEY_W))
-        {
-            position = Vector3Add(position, Vector3Scale(front, moveSpeed));
-        }
-        if (IsKeyDown(KEY_S))
-        {
-            position = Vector3Subtract(position, Vector3Scale(front, moveSpeed));
-        }
-        if (IsKeyDown(KEY_A))
-        {
-            position = Vector3Subtract(position, Vector3Scale(right, moveSpeed));
-        }
-        if (IsKeyDown(KEY_D))
-        {
-            position = Vector3Add(position, Vector3Scale(right, moveSpeed));
-        }
-        if (IsKeyDown(KEY_SPACE))
-        {
-            position.y += moveSpeed;
-        }
-        if (IsKeyDown(KEY_LEFT_CONTROL))
-        {
-            position.y -= moveSpeed;
-        }
-
-        fpsCamera.setPosition(position);
-
+        player.update();
         // Toggle cursor with H key
         if (IsKeyPressed(KEY_H))
         {
@@ -86,7 +52,7 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            Camera3D camera = fpsCamera.getCamera();
+            Camera3D camera = player.getCamera();
             BeginMode3D(camera);
 
                 // Draw grid
@@ -124,6 +90,7 @@ int main(void)
             DrawText("----------------", 10, 160, 20, DARKBLUE);
 
             // Display current camera position
+            Vector3 position = player.getPosition();
             std::string posText = std::format("Position: [{:.2f}, {:.2f}, {:.2f}]", 
                 position.x, position.y, position.z);
             DrawText(posText.c_str(), 10, 200, 18, DARKGREEN);

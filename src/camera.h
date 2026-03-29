@@ -1,3 +1,4 @@
+#pragma once
 #include "raylib.h"
 
 class FPSCamera
@@ -18,5 +19,5 @@ public:
     Vector3 getDirection();
     void setPosition(Vector3 pos);
     Vector3 getPosition();
+    Vector3 getUp();
 };
-

@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/r.a.korostelev/GolandProjects/shooter/src/camera.cpp" "CMakeFiles/game.dir/src/camera.cpp.o" "gcc" "CMakeFiles/game.dir/src/camera.cpp.o.d"
   "/Users/r.a.korostelev/GolandProjects/shooter/src/main.cpp" "CMakeFiles/game.dir/src/main.cpp.o" "gcc" "CMakeFiles/game.dir/src/main.cpp.o.d"
+  "/Users/r.a.korostelev/GolandProjects/shooter/src/player.cpp" "CMakeFiles/game.dir/src/player.cpp.o" "gcc" "CMakeFiles/game.dir/src/player.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

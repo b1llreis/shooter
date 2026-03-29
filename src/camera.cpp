@@ -50,3 +50,7 @@ void FPSCamera::setPosition(Vector3 pos) {
 Vector3 FPSCamera::getDirection() {
     return front;
 }
+
+Vector3 FPSCamera::getUp() {
+    return up;
+}
