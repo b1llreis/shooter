@@ -23,7 +23,7 @@ int main(void)
     // Hide cursor and enable raw mouse input for FPS controls
     DisableCursor();
 
-    SetTargetFPS(60);
+    SetTargetFPS(200);
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -56,7 +56,7 @@ int main(void)
             BeginMode3D(camera);
 
                 // Draw grid
-                DrawGrid(20, 1.0f);
+                DrawGrid(20, 2.0f);
 
                 // Draw some cubes for reference
                 DrawCube(Vector3{ -5.0f, 1.0f, -5.0f }, 2.0f, 2.0f, 2.0f, RED);
@@ -94,6 +94,14 @@ int main(void)
             std::string posText = std::format("Position: [{:.2f}, {:.2f}, {:.2f}]", 
                 position.x, position.y, position.z);
             DrawText(posText.c_str(), 10, 200, 18, DARKGREEN);
+            // display current camera direction
+            Vector3 direction = player.getCamera().target;
+            std::string dirText = std::format("Direction: [{:.2f}, {:.2f}, {:.2f}]", 
+                direction.x, direction.y, direction.z);
+            DrawText(dirText.c_str(), 10, 220, 18, DARKGREEN);
+            // display velocity
+            std::string velText = std::format("Velocity: {:.2f}, Grounded: {}", player.getVelocityY(), player.isGrounded());
+            DrawText(velText.c_str(), 10, 240, 18, DARKGREEN);
 
             // Display FPS
             int fps = GetFPS();
