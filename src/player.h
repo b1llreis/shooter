@@ -16,4 +16,11 @@ class Player
         Vector3 getPosition();
         bool isGrounded();
         float getVelocityY();
+        float getRunMultiplier() const;
+        void handleHorizontalMovement(float deltaTime, float runMultiplier);
+        Vector3 getHorizontalDirection();
+        Vector3 getRightDirection();
+        void moveAlongVector(Vector3 direction, float distance);
+        void handleJump();
+        void applyPhysics(float deltaTime);
 };

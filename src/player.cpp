@@ -7,6 +7,7 @@
 constexpr float groundLevel = 1.0f;
 constexpr float speed = 10.0f;
 constexpr float gravity = -10.0f;
+constexpr float jumpHeight = 5.0f;
 
 Player::Player(Vector3 pos) : camera(pos), position(pos), velocityY(0.0f) {}
 
@@ -14,72 +15,65 @@ Player::~Player() {}
 
 void Player::update() {
     float deltaTime = GetFrameTime();
-    // process multiplier for running
-    float runMultiplier = 1.0f;
-    if (IsKeyDown(KEY_LEFT_SHIFT)) {
-        runMultiplier = 2.0f;
-    }
-
-    // process movement, only x and z axes
-    if (IsKeyDown(KEY_W)) {
-        Vector3 dir = camera.getDirection();
-        dir.y = 0.0f;
-        // can run only forward
-        Vector3 movementVector = Vector3Scale(Vector3Normalize(dir), speed*runMultiplier*deltaTime);
-        // we shouldn't move in y direction
-        movementVector.y = 0.0f;
-
-        position = Vector3Add(position, movementVector);
-    }
-    if (IsKeyDown(KEY_S)) {
-        Vector3 dir = camera.getDirection();
-        dir.y = 0.0f;
-        Vector3 movementVector = Vector3Scale(Vector3Normalize(dir), speed*runMultiplier*deltaTime);
-        // we shouldn't move in y direction
-        movementVector.y = 0.0f;
-
-        position = Vector3Subtract(position, movementVector);
-    }
-    if (IsKeyDown(KEY_A)) {
-        position = Vector3Subtract(position,
-             Vector3Scale(
-                Vector3Normalize(
-                    Vector3CrossProduct(
-                        camera.getDirection(),
-                        camera.getUp()
-                    )
-                ), 
-               speed*deltaTime));
-    }
-    if (IsKeyDown(KEY_D)) {
-        position = Vector3Add(position, 
-            Vector3Scale(
-                Vector3Normalize(
-                    Vector3CrossProduct(
-                        camera.getDirection(),
-                        camera.getUp()
-                    )
-                ),
-                speed*deltaTime)
-            );
-    }
-
-    // process jumping
-    if (IsKeyDown(KEY_SPACE) && isGrounded()) {
-        velocityY = 5.0f;
-    }
+    float runMultiplier = getRunMultiplier();
     
-    //TraceLog(LOG_INFO, std::format("Velocity Y: %f", velocityY).c_str());
-    velocityY += gravity * deltaTime;
-    position.y += velocityY * deltaTime;
-    if (isGrounded()){
-        velocityY = 0.0f;
-        position.y = groundLevel;
-    }
+    handleHorizontalMovement(deltaTime, runMultiplier);
+    handleJump();
+    applyPhysics(deltaTime);
     
-    //process camera
     camera.setPosition(position);
     camera.update();
+}
+
+float Player::getRunMultiplier() const{
+    return IsKeyDown(KEY_LEFT_SHIFT) ? 2.0f : 1.0f;
+}
+
+void Player::handleHorizontalMovement(float deltaTime, float runMultiplier) {
+    Vector3 forward = getHorizontalDirection();
+    
+    if (IsKeyDown(KEY_W)) {
+        moveAlongVector(forward, speed * runMultiplier * deltaTime);
+    }
+    if (IsKeyDown(KEY_S)) {
+        moveAlongVector(forward, -speed * runMultiplier * deltaTime);
+    }
+    if (IsKeyDown(KEY_A)) {
+        Vector3 right = getRightDirection();
+        moveAlongVector(right, -speed * deltaTime);
+    }
+    if (IsKeyDown(KEY_D)) {
+        Vector3 right = getRightDirection();
+        moveAlongVector(right, speed * deltaTime);
+    }
+}
+
+Vector3 Player::getHorizontalDirection() {
+    return Vector3Normalize(Vector3{ camera.getDirection().x, 0.0f, camera.getDirection().z });
+}
+
+Vector3 Player::getRightDirection() {
+    return Vector3Normalize(Vector3CrossProduct(camera.getDirection(), camera.getUp()));
+}
+
+void Player::moveAlongVector(Vector3 direction, float distance) {
+    position = Vector3Add(position, Vector3Scale(direction, distance));
+}
+
+void Player::handleJump() {
+    if (IsKeyPressed(KEY_SPACE) && isGrounded()) {
+        velocityY = jumpHeight;
+    }
+}
+
+void Player::applyPhysics(float deltaTime) {
+    velocityY += gravity * deltaTime;
+    position.y += velocityY * deltaTime;
+
+    if (isGrounded()) {
+        position.y = groundLevel;
+        velocityY = 0.0f;
+    }
 }
 
 Camera3D Player::getCamera() {
